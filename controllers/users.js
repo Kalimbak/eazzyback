@@ -5,9 +5,9 @@ const User = require('../models/user')
 const signup = async(req,res,next)=>{
   try{
     console.log(req.body)
-    const {name,email,password, phonenumber, gender} = req.body
-    if(!name || !email || !password || !phonenumber || !gender) throw UnprocessableEntity('Please provide a valid name,email and password')
-    if(await User.findOne({email:email})) throw Forbidden('This email is already registered')
+    const {name,email,password, gender, phonenumber} = req.body
+    if(!name || !email || !password || !gender || !phonenumber) throw UnprocessableEntity('Please provide a valid name,email and password')
+    if(await User.findOne({password:password})) throw Forbidden('This email is already registered')
     const user = {
       name:name,
       email:email,
@@ -17,7 +17,23 @@ const signup = async(req,res,next)=>{
     }
     res.json({success:true,data: await User.create(user)})
   }catch(err){
-    console.log(err);
+    next(err)
+  }
+}
+const register = async(req,res,next)=>{
+  try{
+    console.log(req.body)
+    const {email,password} = req.body
+    if(!email || !password) throw UnprocessableEntity('Please provide a valid name,email and password')
+    if(await User.findOne({password:password})) throw Forbidden('This password  is already registered')
+    const user = {
+    
+      email:email,
+      password:password,
+
+    }
+    res.json({success:true,data: await User.create(user)})
+  }catch(err){
     next(err)
   }
 }
@@ -28,7 +44,8 @@ const login = async(req, res, next)=>{
     const {email,password} = req.body
     if(!email || !password) throw UnprocessableEntity('Please provide email and password')
     const user = await User.findOne({email:email})
-    if(!user) throw NotFound('This user does not exist')
+    if(!user) alert ("user not found")
+
     const valid = await bcrypt.compare(password,user.password)
     if(!valid) throw Unauthorized('Please provide a valid email and password')
     const userInfo = {
@@ -52,8 +69,8 @@ const logout = async(req,res,next)=>{
 
 const updateUser = async(req,res,next)=>{
   try{
-    if(!req.params.id ) throw BadRequest('No User_id found')
-    const updatedUser = await User.findByIdAndUpdate(req.params.id,req.body,{new:true})
+    if(!req.body.email ) throw BadRequest('No User_id found')
+    const updatedUser = await User.findByIdAndUpdate(req.body.email,req.body,{new:true})
     if(!updatedUser) throw NotFound('Invalid user id or request body keys')
     res.json({success:true,data:updatedUser})
   }catch(err){
@@ -61,9 +78,20 @@ const updateUser = async(req,res,next)=>{
   }
 }
 
+ const getUsers = async(req, res) => {
+  try {
+      const allUsers = await User.findAll({})
+      res.status(200).json({
+          message: "users retrieved",
+          result:allUsers
+      })
+  } catch (error) {
+      res.status(500).json({
+          message: error
+      })
+  }
+}
 
 
 
-
-
-module.exports = {signup,login,logout,updateUser}
+module.exports = {register, getUsers , signup,login,logout,updateUser}

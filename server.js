@@ -9,7 +9,7 @@ const app = express()
 
 const {DB_USERNAME,DB_PASSWORD,DB_NAME,NODE_ENV,SESSION_SECRET} = process.env
 
-const port = NODE_ENV === "development"? 6000 : process.env.PORT
+const port = NODE_ENV === "development"? 4500 : process.env.PORT
 
 const mongoUrl = `mongodb+srv://eazy:987654321k@cluster0.88vdgop.mongodb.net/kevin?retryWrites=true&w=majority`
 console.log('your DB has been connected');
@@ -27,9 +27,7 @@ app.use(session({
 }))
 
 app.use('/api/users',require('./routes/users'))
-app.use('/api/posts',require('./routes/posts'))
-// app.use('/api/tags/',require('./routes/tags'))
-app.use('/api/comments',require('./routes/comments'))
+
 
 app.get('/',(req,res)=>{
     res.send(`Ei is running on port ${port}`)
